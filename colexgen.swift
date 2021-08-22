@@ -4,7 +4,7 @@ import Foundation
 
 
 let fm = FileManager()
-var colorsets:[String] = []
+let excludes = ["AccentColor"]
 
 var result = """
 // generated with colexgen
@@ -25,6 +25,12 @@ if let contents = fm.enumerator(at: URL(fileURLWithPath: "."), includingProperti
 			let last = path.index(path.endIndex, offsetBy: -".colorset/".count)
 			if let secondToLast = path[...path.index(before:last)].lastIndex(of: "/") {
 				let name = path[path.index(after:secondToLast)..<last]
+				
+				if (excludes.first {
+					$0.caseInsensitiveCompare(name) == .orderedSame
+				}) != nil {
+					continue;
+				}
 				let propertyName = name.prefix(1).lowercased() + name.dropFirst()
 				
 				result.append("""
