@@ -5,15 +5,7 @@ import Foundation
 
 let fm = FileManager()
 let excludes = ["AccentColor"]
-
-var result = """
-// generated with colexgen
-
-import SwiftUI
-
-extension Color {
-
-"""
+var properties = [(name: Substring, propertyName: String)]()
 
 if let contents = fm.enumerator(at: URL(fileURLWithPath: "."), includingPropertiesForKeys: [.isRegularFileKey], options: FileManager.DirectoryEnumerationOptions()) {
 	for case let url as URL in contents {
@@ -32,21 +24,33 @@ if let contents = fm.enumerator(at: URL(fileURLWithPath: "."), includingProperti
 					continue;
 				}
 				let propertyName = name.prefix(1).lowercased() + name.dropFirst()
-				
-				result.append("""
-					static var \(propertyName): Color {
-						Color("\(name)")
-					}
-
-
-				""")
-				
+				properties.append((name, propertyName))
 			}
-			
 		}
 	}
 }
 
+var result = """
+// generated with colexgen
+
+import SwiftUI
+
+extension Color {
+
+"""
+
+properties.sorted {
+	$0.1 < $1.1
+}.forEach {
+	result.append(
+"""
+	static var \($0.1): Color {
+   		Color("\($0.0)")
+	}
+
+
+""")
+}
 result.append("}")
 print(result)
 
